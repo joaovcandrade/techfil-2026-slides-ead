@@ -1,0 +1,681 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#050a24" />
+  <title>TechFil 2026 — Inteligência Digital</title>
+  <style>
+    @font-face {
+      font-family: "Bahnschrift";
+      src: url("assets/bahnschrift-latin.woff2") format("woff2-variations");
+      font-weight: 300 700;
+      font-stretch: 75% 100%;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    :root {
+      --abyssal: #050a24;
+      --elevated: #081532;
+      --deep: #0b1f43;
+      --ink: #02060b;
+      --cyan: #00c8ff;
+      --cyan-strong: #5be0ff;
+      --cyan-dim: #0a3a52;
+      --violet: #a93cff;
+      --stellar: #f3f8ff;
+      --nebula: #a9bdd9;
+      --surface: #ffffff;
+      --on-light: #0a0a0f;
+      --muted-light: #52525b;
+      --border: rgba(120, 180, 255, 0.22);
+      --font: "Bahnschrift", "Segoe UI", system-ui, sans-serif;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+      --dur: 520ms;
+      --z-base: 0;
+      --z-art: 1;
+      --z-content: 10;
+      --z-controls: 40;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; }
+    html { background: #00030a; }
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #00030a;
+      color: var(--stellar);
+      font-family: var(--font);
+      font-kerning: normal;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    button, a { font: inherit; }
+    button { color: inherit; }
+    img { display: block; max-width: 100%; }
+    svg { display: block; }
+    a { color: inherit; }
+    :focus-visible { outline: 3px solid var(--cyan); outline-offset: 4px; }
+
+    .skip-link {
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 100;
+      padding: .75rem 1rem;
+      border-radius: 999px;
+      background: var(--cyan);
+      color: #01131c;
+      font-weight: 600;
+      transform: translateY(-180%);
+      transition: transform 180ms var(--ease);
+    }
+    .skip-link:focus { transform: translateY(0); }
+
+    .stage {
+      position: relative;
+      width: min(100vw, calc(100dvh * 16 / 9));
+      height: min(100dvh, calc(100vw * 9 / 16));
+      margin: auto;
+      overflow: hidden;
+      container: stage / size;
+      isolation: isolate;
+      background: var(--abyssal);
+      box-shadow: 0 0 100px rgba(0, 0, 0, .72);
+    }
+
+    .deck { position: absolute; inset: 0; }
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      overflow: hidden;
+      background: var(--abyssal);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translate3d(2.2%, 0, 0) scale(.995);
+      transition: opacity calc(var(--dur) * .72) var(--ease), transform var(--dur) var(--ease), visibility 0s linear var(--dur);
+    }
+    .slide.is-active {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: none;
+      transition-delay: 0s;
+      z-index: 2;
+    }
+    .slide.is-before { transform: translate3d(-2.2%, 0, 0) scale(.995); }
+
+    .slide__content {
+      position: relative;
+      z-index: var(--z-content);
+      align-self: stretch;
+      display: flex;
+      flex-direction: column;
+      padding: 4.7cqw 5.25cqw 4.1cqw;
+    }
+    .slide__content--center { justify-content: center; }
+    .slide__content--bottom { justify-content: flex-end; }
+
+    .display {
+      margin: 0;
+      max-width: 12ch;
+      font-size: clamp(3rem, 5.1cqw, 6rem);
+      font-weight: 600;
+      font-stretch: 92%;
+      line-height: .92;
+      letter-spacing: -.025em;
+      text-wrap: balance;
+    }
+    .display--xl { font-size: clamp(3.5rem, 6.5cqw, 7.75rem); }
+    .display--wide { max-width: 18ch; }
+    .lead {
+      max-width: 48ch;
+      margin: 1.6cqw 0 0;
+      color: rgba(169, 189, 217, .85);
+      font-size: clamp(1.1rem, 1.6cqw, 2rem);
+      font-weight: 400;
+      line-height: 1.35;
+      text-wrap: pretty;
+    }
+    .label {
+      margin: 0 0 1cqw;
+      color: var(--cyan);
+      font-size: clamp(.82rem, .8cqw, 1rem);
+      font-weight: 500;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .tabular { font-variant-numeric: tabular-nums; }
+
+    .footer {
+      position: absolute;
+      right: 3.2cqw;
+      bottom: 2.2cqw;
+      left: 3.2cqw;
+      z-index: var(--z-content);
+      display: flex;
+      align-items: center;
+      gap: 1cqw;
+      color: var(--nebula);
+      font-size: clamp(.72rem, .72cqw, .95rem);
+      font-weight: 500;
+    }
+    .footer::after {
+      content: "";
+      order: 2;
+      width: 14cqw;
+      height: 1px;
+      background: linear-gradient(90deg, var(--cyan), transparent);
+    }
+    .footer__brand { order: 1; }
+    .footer__page { order: 3; margin-left: auto; color: var(--cyan); }
+
+    .cover { background: var(--ink); }
+    .cover__art, .cover__shade { position: absolute; inset: 0; }
+    .cover__art {
+      z-index: var(--z-base);
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: saturate(1.1) contrast(1.05) brightness(.92);
+      transform: scale(1.025);
+    }
+    .cover__shade {
+      z-index: var(--z-art);
+      background: linear-gradient(90deg, rgba(2, 6, 11, .98) 0%, rgba(2, 6, 11, .77) 42%, rgba(2, 6, 11, .18) 75%), linear-gradient(180deg, rgba(2, 6, 11, .15), rgba(2, 6, 11, .62));
+    }
+    .cover__content { justify-content: center; width: 60%; }
+    .cover__logo { width: min(24cqw, 30rem); margin-bottom: 3.5cqw; opacity: .92; }
+    .cover__tagline { max-width: 12ch; font-size: clamp(3.5rem, 6cqw, 7rem); letter-spacing: -.02em; line-height: .94; }
+    .cover__meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .8cqw 2cqw;
+      margin-top: 2.8cqw;
+      color: rgba(169, 189, 217, .7);
+      font-size: clamp(1rem, 1.25cqw, 1.55rem);
+      letter-spacing: .01em;
+    }
+    .cover__meta strong { color: var(--cyan); font-weight: 600; }
+    .cover.is-active .cover__art { animation: cover-drift 12s ease-out both; }
+    @keyframes cover-drift { from { transform: scale(1.09); } to { transform: scale(1.025); } }
+
+    .venue { background: var(--ink); }
+    .venue__image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: saturate(1.18) brightness(1.02) contrast(1.05); }
+    .venue::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: var(--z-art);
+      background: linear-gradient(90deg, rgba(2, 6, 11, .72) 0%, rgba(2, 6, 11, .38) 40%, rgba(2, 6, 11, .08) 75%), linear-gradient(0deg, rgba(2, 6, 11, .62) 0%, rgba(2, 6, 11, .15) 35%, transparent 55%);
+    }
+    .venue__copy { width: 50%; padding-bottom: 4.8cqw; }
+    .venue__label { margin-bottom: 1.2cqw; }
+    .venue__headline { max-width: 10ch; margin-bottom: 1.2cqw; }
+    .venue__lead { max-width: 38ch; }
+    .venue__divider {
+      width: 4cqw;
+      height: 2px;
+      margin: 2cqw 0;
+      background: linear-gradient(90deg, var(--cyan), transparent);
+      border: none;
+      opacity: .85;
+    }
+    .venue__facts {
+      display: flex;
+      gap: 2.2cqw;
+      margin-top: 0;
+    }
+    .venue__fact {
+      color: var(--stellar);
+      font-size: clamp(.92rem, 1.05cqw, 1.3rem);
+      line-height: 1.35;
+      letter-spacing: .01em;
+    }
+    .venue__fact strong {
+      display: block;
+      margin-bottom: .2cqw;
+      color: var(--cyan);
+      font-size: 1.05em;
+      font-weight: 600;
+      letter-spacing: .04em;
+    }
+
+    .promise { background: var(--surface); color: var(--on-light); }
+    .promise__orb {
+      position: absolute;
+      top: -17%;
+      right: -9%;
+      width: 46%;
+      filter: saturate(1.08) drop-shadow(0 0 4cqw rgba(0, 200, 255, .2));
+    }
+    .promise__beam {
+      position: absolute;
+      right: 15%;
+      bottom: 13%;
+      width: 48%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--cyan), var(--cyan));
+      transform: rotate(-18deg);
+      transform-origin: right;
+      filter: drop-shadow(0 0 8px rgba(0, 200, 255, .6));
+    }
+    .promise__statement { max-width: 12ch; font-size: clamp(4rem, 7.15cqw, 8.55rem); }
+    .promise__statement span { display: block; white-space: nowrap; }
+    .promise__sub { margin: 1.7cqw 0 0; color: #007596; font-size: clamp(1.2rem, 1.75cqw, 2.15rem); font-weight: 600; }
+    .promise .footer { color: var(--muted-light); }
+
+    .benefits { background: var(--surface); color: var(--on-light); }
+    .benefits__orb { position: absolute; right: -15%; bottom: -43%; width: 52%; filter: saturate(1.05); }
+    .benefits__copy { width: 82%; }
+    .benefits__copy .display { max-width: 9ch; font-size: clamp(3.8rem, 6.4cqw, 7.7rem); }
+    .benefits__equation { display: flex; align-items: center; gap: 1.8cqw; margin-top: 2.6cqw; font-size: clamp(2.6rem, 4.5cqw, 5.4rem); font-weight: 600; line-height: .9; letter-spacing: -.035em; }
+    .benefits__equation b { color: #007596; font-weight: 400; }
+    .benefits__equation strong { color: #007596; }
+    .benefits__enrollment { width: min(87%, 57ch); margin: 3cqw 0 0; padding-top: 1.35cqw; border-top: 1px solid #a4b4c5; color: var(--muted-light); font-size: clamp(1rem, 1.2cqw, 1.45rem); line-height: 1.38; }
+    .benefits__enrollment p { margin: 0; }
+    .benefits__enrollment p + p { margin-top: .65cqw; }
+    .benefits__enrollment strong { color: #007596; font-weight: 600; }
+    .benefits .footer { color: var(--muted-light); }
+
+    .shows { background: var(--ink); }
+    .shows__image, .ecosystem__image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .shows__image { object-position: center 30%; filter: saturate(.78) contrast(1.14) brightness(.42); }
+    .shows::after { content: ""; position: absolute; inset: 0; z-index: var(--z-art); background: linear-gradient(90deg, rgba(2,6,11,.98), rgba(2,6,11,.4) 52%, rgba(2,6,11,.2)), linear-gradient(0deg, rgba(2,6,11,.96), transparent 68%); }
+    .shows__copy { width: 55%; justify-content: flex-start; padding-top: 4.8cqw; }
+    .shows__copy .display { max-width: 15ch; font-size: clamp(2.2rem, 3.8cqw, 4.8rem); }
+    .shows__copy .display strong { display: block; color: var(--cyan); font-weight: 600; margin-top: .2em; }
+    .lineup { position: absolute; right: 4.2cqw; bottom: 6.5cqw; left: 4.2cqw; z-index: 5; display: flex; align-items: flex-end; gap: 2px; height: 21cqw; }
+    .artist { position: relative; flex: 1; height: 17cqw; overflow: hidden; }
+    .artist:nth-child(2), .artist:nth-child(4) { height: 20cqw; }
+    .artist img { width: 100%; height: 100%; object-fit: cover; filter: saturate(.75) contrast(1.12) brightness(.75); }
+    .artist::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(2,6,11,.95), transparent 58%); }
+    .artist strong { position: absolute; right: 1.2cqw; bottom: 1.1cqw; left: 1.2cqw; z-index: 2; font-size: clamp(.9rem, 1.08cqw, 1.35rem); font-weight: 600; }
+
+    .ecosystem { background: var(--ink); }
+    .ecosystem__image { object-position: center; filter: saturate(.65) contrast(1.1) brightness(.38); }
+    .ecosystem::after { content: ""; position: absolute; inset: 0; z-index: var(--z-art); background: radial-gradient(circle at 73% 42%, rgba(0,200,255,.13), transparent 32%), linear-gradient(90deg, rgba(2,6,11,.98), rgba(2,6,11,.56) 62%, rgba(2,6,11,.3)); }
+    .ecosystem__copy { width: 56%; }
+    .ecosystem__number { margin: 0; font-size: clamp(8rem, 15cqw, 18rem); font-weight: 600; line-height: .68; letter-spacing: -.065em; }
+    .ecosystem__number span { display: block; margin-top: 1.7cqw; color: var(--stellar); font-size: .27em; line-height: .9; letter-spacing: -.03em; }
+    .ecosystem__number strong { color: var(--cyan); font-weight: 600; }
+    .logo-stream { position: absolute; right: 5.25cqw; bottom: 7.2cqw; left: 5.25cqw; z-index: 4; display: flex; align-items: center; justify-content: space-between; gap: 2.1cqw; min-height: 6.5cqw; padding: 1.15cqw 1.6cqw; background: rgba(255,255,255,.96); box-shadow: 0 2cqw 4cqw -2cqw rgba(0,0,0,.8); }
+    .logo-stream img { max-width: 9.5cqw; max-height: 3.5cqw; object-fit: contain; }
+
+    .people { background: var(--ink); }
+    .people__image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 42%; filter: saturate(.68) contrast(1.12) brightness(.72); }
+    .people::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: var(--z-art);
+      background: linear-gradient(90deg, rgba(2, 6, 11, .97) 0%, rgba(2, 6, 11, .6) 37%, transparent 74%), linear-gradient(0deg, rgba(2, 6, 11, .82), transparent 50%);
+    }
+    .people__copy { width: 48%; }
+    .people__line { width: 23cqw; height: 3px; margin-top: 2.5cqw; background: linear-gradient(90deg, var(--cyan), transparent); box-shadow: 0 0 16px rgba(0, 200, 255, .55); }
+
+    .app-journey { background: radial-gradient(54% 90% at 79% 45%, rgba(25, 98, 255, .28), transparent 69%), var(--abyssal); }
+    .app-journey::after { content: ""; position: absolute; right: 8%; bottom: 18%; width: 56%; height: 2px; background: linear-gradient(90deg, transparent, var(--cyan), var(--cyan)); transform: rotate(-18deg); box-shadow: 0 0 14px rgba(0,200,255,.62); }
+    .app-journey__copy { width: 38%; }
+    .app-journey__copy .display { max-width: 7ch; font-size: clamp(3.8rem, 5.8cqw, 7rem); }
+    .real-phones { position: absolute; z-index: 4; }
+    .real-phones--journey { top: 4.5%; right: 2%; bottom: 4.5%; left: 39%; }
+    .real-phone { position: absolute; overflow: hidden; border: .38cqw solid #05070c; border-radius: 2.2cqw; background: #fff; box-shadow: 0 2.4cqw 4.6cqw -1.5cqw rgba(0,0,0,.82); }
+    .real-phone img { width: 100%; height: 100%; object-fit: cover; }
+    .real-phones--journey .real-phone { width: 20.4cqw; height: 44.1cqw; }
+    .real-phones--journey .real-phone:nth-child(1) { top: 5.7cqw; left: 0; transform: rotate(-6deg) scale(.88); opacity: .86; }
+    .real-phones--journey .real-phone:nth-child(2) { top: 0; left: 20.2cqw; z-index: 3; }
+    .real-phones--journey .real-phone:nth-child(3) { top: 5.7cqw; left: 40.4cqw; transform: rotate(6deg) scale(.88); opacity: .86; }
+    .app-journey__features { display: flex; gap: 1.4cqw; margin-top: 2.4cqw; color: var(--nebula); font-size: clamp(.9rem, .96cqw, 1.2rem); }
+    .app-journey__features span { padding-top: .65cqw; border-top: 1px solid var(--cyan); }
+
+    .app-engage { background: var(--surface); color: var(--on-light); }
+    .app-engage__orb { position: absolute; right: -18%; top: -35%; width: 47%; opacity: .82; }
+    .app-engage__copy { width: 34%; }
+    .app-engage__copy .display { max-width: 7ch; font-size: clamp(3.8rem, 5.7cqw, 6.85rem); }
+    .app-engage__copy .lead { color: var(--muted-light); }
+    .real-phones--engage { top: 5%; right: 2.5%; bottom: 5%; left: 35%; }
+    .real-phones--engage .real-phone { width: 15.5cqw; height: 33.5cqw; border-width: .3cqw; border-radius: 1.75cqw; box-shadow: 0 2cqw 3.4cqw -1.35cqw rgba(5,10,36,.36); }
+    .real-phones--engage .real-phone:nth-child(1) { top: 7.2cqw; left: 0; transform: rotate(-4deg); }
+    .real-phones--engage .real-phone:nth-child(2) { top: 0; left: 15.8cqw; z-index: 3; }
+    .real-phones--engage .real-phone:nth-child(3) { top: 7.2cqw; left: 31.6cqw; z-index: 2; }
+    .real-phones--engage .real-phone:nth-child(4) { top: 1.5cqw; left: 47.4cqw; transform: rotate(4deg); }
+    .app-engage .footer { color: var(--muted-light); }
+
+    .passport { background: var(--ink); }
+    .passport__image, .solidarity__image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .passport::after, .solidarity::after { content: ""; position: absolute; inset: 0; z-index: var(--z-art); background: linear-gradient(90deg, rgba(2, 6, 11, .99) 0%, rgba(2, 6, 11, .86) 34%, rgba(2, 6, 11, .18) 68%), linear-gradient(0deg, rgba(2, 6, 11, .86), transparent 52%); }
+    .passport__copy { width: 48%; }
+    .passport__copy .display { max-width: 9ch; font-size: clamp(3.7rem, 5.7cqw, 6.85rem); }
+    .passport__modes { display: grid; gap: 1.35cqw; max-width: 46ch; margin-top: 2.5cqw; }
+    .passport__mode { color: var(--nebula); font-size: clamp(1rem, 1.1cqw, 1.35rem); line-height: 1.35; }
+    .passport__mode strong { display: block; margin-bottom: .25cqw; color: var(--cyan); font-size: 1.12em; font-weight: 600; }
+
+    .solidarity { background: var(--ink); color: var(--stellar); }
+    .solidarity__copy { width: 53%; }
+    .solidarity__copy .display { max-width: 8ch; font-size: clamp(3.5rem, 5.4cqw, 6.5rem); }
+    .solidarity__tiers { display: grid; gap: 1px; margin-top: 2.4cqw; background: rgba(120, 180, 255, .24); }
+    .access-tier { display: grid; grid-template-columns: 10cqw 11cqw 1fr; align-items: center; gap: 1.25cqw; min-height: 6.2cqw; padding: 1.1cqw 1.4cqw; background: rgba(5, 10, 36, .93); }
+    .access-tier__name { color: var(--nebula); font-size: clamp(.78rem, .78cqw, .98rem); letter-spacing: .06em; text-transform: uppercase; }
+    .access-tier__value { font-size: clamp(2rem, 3.4cqw, 4.1rem); font-weight: 600; line-height: .9; letter-spacing: -.035em; }
+    .access-tier__detail { color: var(--nebula); font-size: clamp(.88rem, .93cqw, 1.15rem); line-height: 1.35; }
+    .access-tier--vip { background: var(--cyan); color: #03101c; }
+    .access-tier--vip .access-tier__name, .access-tier--vip .access-tier__detail { color: #12344a; }
+
+    .experience { background: var(--ink); }
+    .experience__hero { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: saturate(.88) contrast(1.08) brightness(.72); }
+    .experience::after { content: ""; position: absolute; inset: 0; z-index: var(--z-art); background: linear-gradient(90deg, rgba(2, 6, 11, .98), rgba(2, 6, 11, .64) 42%, transparent 76%), linear-gradient(0deg, rgba(2, 6, 11, .94), transparent 55%); }
+    .experience__copy { width: 47%; }
+    .experience__copy .display { max-width: 8ch; font-size: clamp(4rem, 6.2cqw, 7.5rem); }
+    .experience__cuts { position: absolute; right: 4.6cqw; bottom: 9.5cqw; z-index: 3; width: 40cqw; height: 19cqw; }
+    .experience__cut { position: absolute; overflow: hidden; box-shadow: 0 2cqw 4cqw -2cqw rgba(0,0,0,.9); }
+    .experience__cut img { width: 100%; height: 100%; object-fit: cover; filter: saturate(.78) contrast(1.12) brightness(.7); }
+    .experience__cut--network { top: 0; right: 15cqw; width: 20cqw; height: 15cqw; transform: rotate(-3deg); }
+    .experience__cut--show { right: 0; bottom: 0; width: 17cqw; height: 13cqw; transform: rotate(4deg); }
+    .experience__rhythm { position: absolute; right: 5.25cqw; bottom: 4.2cqw; left: 5.25cqw; z-index: 5; display: flex; align-items: center; gap: 1.2cqw; color: var(--stellar); font-size: clamp(1rem, 1.15cqw, 1.4rem); }
+    .experience__rhythm strong { color: var(--cyan); font-size: 1.6em; }
+    .experience__rhythm i { flex: 1; height: 1px; background: linear-gradient(90deg, var(--cyan), transparent); }
+
+    .close { background: var(--ink); }
+    .close__orb { position: absolute; top: -15%; right: -10%; width: 61%; filter: saturate(1.08) drop-shadow(0 0 7cqw rgba(0, 200, 255, .18)); }
+    .close::after { content: ""; position: absolute; right: 11%; bottom: 21%; width: 56%; height: 2px; background: linear-gradient(90deg, transparent, var(--cyan), var(--cyan)); transform: rotate(-20deg); filter: drop-shadow(0 0 10px rgba(0, 200, 255, .7)); }
+    .close__copy { width: 55%; }
+    .close__action { display: flex; align-items: center; gap: 2.5cqw; margin-top: 2.6cqw; }
+    .qr { display: grid; place-items: center; width: 10.5cqw; min-width: 140px; aspect-ratio: 1; padding: .6cqw; border-radius: .7cqw; background: #fff; box-shadow: 0 1.5cqw 3cqw -1cqw rgba(0, 0, 0, .7); }
+    .qr svg { width: 100%; height: 100%; }
+    .close__url { max-width: 20ch; color: var(--nebula); font-size: clamp(1rem, 1.2cqw, 1.5rem); line-height: 1.3; text-decoration: none; }
+    .close__url strong { display: block; margin-bottom: .5cqw; color: var(--cyan); font-weight: 600; }
+
+    .controls {
+      position: absolute;
+      right: max(1rem, env(safe-area-inset-right));
+      bottom: max(1rem, env(safe-area-inset-bottom));
+      z-index: var(--z-controls);
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      opacity: 0;
+      transform: translateY(.5rem);
+      transition: opacity 220ms var(--ease), transform 220ms var(--ease);
+    }
+    .stage:hover .controls, .controls:focus-within, .stage[data-controls="visible"] .controls { opacity: 1; transform: none; }
+    .control { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid var(--border); border-radius: 999px; background: rgba(5, 10, 36, .92); color: var(--stellar); cursor: pointer; transition: background 160ms, color 160ms, transform 120ms; }
+    .control:hover { background: var(--cyan); color: #01131c; }
+    .control:active { transform: scale(.96); }
+    .control:disabled { opacity: .35; cursor: default; }
+    .control svg { width: 18px; height: 18px; }
+    .counter { min-width: 4.5rem; text-align: center; color: var(--nebula); font-size: .875rem; font-variant-numeric: tabular-nums; }
+    .progress { position: absolute; right: 0; bottom: 0; left: 0; z-index: var(--z-controls); height: 3px; background: rgba(120, 180, 255, .12); }
+    .progress__bar { display: block; width: 11.111%; height: 100%; background: var(--cyan); box-shadow: 0 0 12px rgba(0, 200, 255, .65); transform-origin: left; transition: width 420ms var(--ease); }
+
+    @media (pointer: coarse) { .controls { opacity: 1; transform: none; } }
+    @media (max-aspect-ratio: 4 / 3) {
+      .controls { right: .75rem; bottom: .75rem; }
+      .control { width: 48px; height: 48px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      :root { --dur: 1ms; }
+      *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: 1ms !important; }
+    }
+
+    .rotate-hint {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.6rem;
+      background: var(--abyssal);
+      color: var(--stellar);
+      font-size: clamp(1rem, 3.2vw, 1.35rem);
+      text-align: center;
+      line-height: 1.45;
+    }
+    .rotate-hint__icon {
+      width: clamp(44px, 10vw, 64px);
+      height: clamp(44px, 10vw, 64px);
+      stroke: var(--cyan);
+      stroke-width: 1.5;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .rotate-hint__text strong { color: var(--cyan); font-weight: 600; }
+    @media (max-width: 900px) {
+      .rotate-hint { display: flex; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#controls">Ir para os controles</a>
+  <main class="stage" id="stage" aria-roledescription="apresentação" aria-label="TechFil 2026 — Inteligência Digital">
+    <div class="deck" id="deck" aria-live="polite">
+      <section class="slide cover is-active" data-slide aria-label="Slide 1 de 10: Inteligência Digital">
+        <img class="cover__art" src="assets/hero.webp" alt="" />
+        <div class="cover__shade" aria-hidden="true"></div>
+        <div class="slide__content cover__content">
+          <img class="cover__logo" src="assets/techfil-lockup.png" alt="TechFil 2026 — XX Semana Tecnológica" />
+          <h1 class="display cover__tagline">Inteligência Digital</h1>
+          <p class="lead">Conexões, dados e impacto.</p>
+          <div class="cover__meta tabular"><strong>28 SET — 02 OUT</strong><span>Ginásio Colégio Londrinense · Londrina, PR</span></div>
+        </div>
+        <div class="footer"><span class="footer__brand">TechFil 2026</span><span class="footer__page">01</span></div>
+      </section>
+
+      <section class="slide venue" data-slide aria-label="Slide 2 de 10: novo local">
+        <img class="venue__image" src="assets/venue.webp" alt="Vista do espaço preparado para o evento TechFil 2026" />
+        <div class="slide__content slide__content--bottom venue__copy">
+          <p class="label venue__label">Uma nova casa</p>
+          <h2 class="display venue__headline">Novo Local.</h2>
+          <p class="lead venue__lead">Mais espaço para encontros, conteúdo e experiências — com a mesma energia que faz cada dia ser único.</p>
+          <hr class="venue__divider" />
+          <div class="venue__facts">
+            <div class="venue__fact"><strong>28 SET — 02 OUT</strong>2026</div>
+            <div class="venue__fact"><strong>LONDRINA</strong>Ginásio Colégio Londrinense</div>
+            <div class="venue__fact"><strong>TRANSMISSÃO</strong>Também online</div>
+          </div>
+        </div>
+        <div class="footer"><span class="footer__brand">TechFil 2026</span><span class="footer__page">02</span></div>
+      </section>
+
+      <section class="slide promise" data-slide aria-label="Slide 3 de 10: cinco dias de experiência">
+        <img class="promise__orb" src="assets/orbe.webp" alt="" />
+        <span class="promise__beam" aria-hidden="true"></span>
+        <div class="slide__content slide__content--center">
+          <h2 class="display promise__statement"><span>Um ingresso.</span><span>Cinco dias.</span><span>Show todo dia.</span></h2>
+          <p class="promise__sub">Conteúdo, conexões e inteligência digital.</p>
+        </div>
+        <div class="footer"><span class="footer__brand">TechFil 2026</span><span class="footer__page">03</span></div>
+      </section>
+
+      <section class="slide benefits" data-slide aria-label="Slide 4 de 10: benefícios acadêmicos">
+        <img class="benefits__orb" src="assets/orbe.webp" alt="" />
+        <div class="slide__content slide__content--center benefits__copy">
+          <h2 class="display">Sua semana vale mais.</h2>
+          <div class="benefits__equation"><span>5 DIAS</span><b>→</b><strong>15H AAC</strong></div>
+          <div class="benefits__enrollment">
+            <p><strong>100% EAD:</strong> inscreva-se na modalidade online.</p>
+            <p><strong>Híbrido ou 100% presencial:</strong> inscreva-se na modalidade presencial.</p>
+          </div>
+        </div>
+        <div class="footer"><span class="footer__brand">TechFil 2026</span><span class="footer__page">04</span></div>
+      </section>
+
+      <section class="slide shows" data-slide aria-label="Slide 5 de 10: shows diários">
+        <img class="shows__image" src="assets/show.webp" alt="Apresentação musical ao vivo na TechFil" />
+        <div class="slide__content shows__copy">
+          <h2 class="display">A Semana inicia às 18h. Todos os dias, <strong>com shows e gastronomia</strong></h2>
+        </div>
+        <div class="lineup" aria-label="Line-up dos shows">
+          <div class="artist"><img src="assets/bona-trio.webp" alt="Bona Trio" /><strong>Bona Trio</strong></div>
+          <div class="artist"><img src="assets/nino.webp" alt="Nino" /><strong>Nino</strong></div>
+          <div class="artist"><img src="assets/manolex.webp" alt="Manolex" /><strong>Manolex</strong></div>
+          <div class="artist"><img src="assets/tiago-luziano.webp" alt="Tiago Luziano" /><strong>Tiago Luziano</strong></div>
+          <div class="artist"><img src="assets/the-folks.webp" alt="The Folks" /><strong>The Folks</strong></div>
+        </div>
+        <div class="footer"><span class="footer__brand">TechFil 2026</span><span class="footer__page">05</span></div>
+      </section>
+
+      <section class="slide ecosystem" data-slide aria-label="Slide 6 de 10: sessenta organizações conectadas">
+        <img class="ecosystem__image" src="assets/ecossistema.webp" alt="Participantes e empresas conectados no ecossistema TechFil" />
+        <div class="slide__content slide__content--center ecosystem__copy">
+          <h2 class="ecosystem__number"><strong>97</strong><span>gigantes conectadas.</span></h2>
+          <p class="lead">Big Techs, patrocinadores e entidades parceiras reunidas no mesmo ecossistema.</p>
+        </div>
+        <div class="logo-stream" aria-label="Patrocinadores TechFil 2026">
+          <img src="assets/sponsor-sicredi.png" alt="Sicredi Dexis" /><img src="assets/sponsor-skynova.png" alt="Skynova" /><img src="assets/sponsor-tcs.png" alt="TCS" /><img src="assets/sponsor-cloud-ace.png" alt="Cloud Ace" /><img src="assets/sponsor-semantix.png" alt="Semantix" /><img src="assets/sponsor-londrisoft.png" alt="Londrisoft" /><img src="assets/sponsor-aytt.png" alt="AYTT" /><img src="assets/sponsor-avant.png" alt="Avant Services" />
+        </div>
+        <div class="footer"><span class="footer__brand">TechFil 2026</span><span class="footer__page">06</span></div>
+      </section>
+
+      <section class="slide app-journey" data-slide aria-label="Slide 7 de 10: jornada principal no aplicativo TechFil">
+        <div class="slide__content slide__content--center app-journey__copy">
+          <p class="label">O App TechFil real</p>
+          <h2 class="display">O evento inteiro na sua mão.</h2>
+          <p class="lead">Seu ingresso, a programação e as conversas da comunidade em uma jornada contínua.</p>
+          <div class="app-journey__features"><span>Início</span><span>Programação</span><span>Feed</span></div>
+        </div>
+        <div class="real-phones real-phones--journey">
+          <figure class="real-phone"><img src="assets/app-real-inicio.png" alt="Tela inicial real do aplicativo TechFil" /></figure>
+          <figure class="real-phone"><img src="assets/app-real-programacao.png" alt="Programação real do aplicativo TechFil" /></figure>
+          <figure class="real-phone"><img src="assets/app-real-feed.png" alt="Feed real da comunidade TechFil" /></figure>
+        </div>
+        <div class="footer"><span class="footer__brand">TechFil 2026</span><span class="footer__page">07</span></div>
+      </section>
+
+      <section class="slide app-engage" data-slide aria-label="Slide 8 de 10: engajamento no aplicativo TechFil">
+        <img class="app-engage__orb" src="assets/orbe.webp" alt="" />
+        <div class="slide__content slide__content--center app-engage__copy">
+          <h2 class="display">Jogue. Conecte. Pontue.</h2>
+          <p class="lead">Patrocinadores, fidelidade, ranking, selos e uma comunidade ativa durante toda a semana.</p>
+        </div>
+        <div class="real-phones real-phones--engage">
+          <figure class="real-phone"><img src="assets/app-real-patrocinadores.png" alt="Área real de patrocinadores no aplicativo" /></figure>
+          <figure class="real-phone"><img src="assets/app-real-jogo.png" alt="Jogo, fidelidade e ranking no aplicativo" /></figure>
+          <figure class="real-phone"><img src="assets/app-real-selos.png" alt="Lista real de selos conquistados no aplicativo" /></figure>
+          <figure class="real-phone"><img src="assets/app-real-membros.png" alt="Lista real de membros da comunidade TechFil" /></figure>
+        </div>
+        <div class="footer"><span class="footer__brand">TechFil 2026</span><span class="footer__page">08</span></div>
+      </section>
+
+      <section class="slide passport" data-slide aria-label="Slide 9 de 10: modalidades de participação">
+        <img class="passport__image" src="assets/checkin.png" alt="Participantes utilizando o aplicativo TechFil durante o evento" />
+        <div class="slide__content slide__content--center passport__copy">
+          <h2 class="display">Viva do seu jeito.</h2>
+          <div class="passport__modes">
+            <div class="passport__mode"><strong>Presencial</strong>Se optar por participar presencialmente, aproveite os stands, a gastronomia gratuita, os brindes e muito mais.</div>
+            <div class="passport__mode"><strong>Online</strong>Viva o evento pela transmissão, pelo App e pelo feed online.</div>
+          </div>
+        </div>
+        <div class="footer"><span class="footer__brand">TechFil 2026</span><span class="footer__page">09</span></div>
+      </section>
+
+      <section class="slide close" data-slide aria-label="Slide 10 de 10: garanta seu ingresso">
+        <img class="close__orb" src="assets/orbe.webp" alt="" />
+        <div class="slide__content slide__content--center close__copy">
+          <p class="label">A energia começa na plateia</p>
+          <h2 class="display display--xl">Assuma seu lugar.</h2>
+          <p class="lead">Um ingresso gratuito. Cinco dias completos. Show todo dia.</p>
+          <div class="close__action">
+            <a class="qr" href="https://techfil2026.unifil.tech/ingresso" aria-label="Abrir página para garantir o ingresso gratuito">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 31 31" shape-rendering="crispEdges" aria-hidden="true"><path fill="#FFFFFF" d="M0 0h31v31H0z"/><path stroke="#050A24" d="M1 1.5h7m3 0h1m5 0h5m1 0h7M1 2.5h1m5 0h1m2 0h2m1 0h1m1 0h2m2 0h1m3 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m1 0h1m1 0h2m2 0h1m4 0h2m1 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m1 0h3m1 0h6m1 0h1m2 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m1 0h1m2 0h2m1 0h1m1 0h1m1 0h3m1 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m1 0h1m1 0h1m2 0h1m1 0h3m2 0h1m1 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M9 8.5h1m2 0h1m2 0h1m1 0h1m1 0h1m1 0h1M1 9.5h1m1 0h5m2 0h1m1 0h1m1 0h3m1 0h1m2 0h1m1 0h5M1 10.5h1m1 0h1m1 0h2m3 0h2m1 0h1m1 0h1m1 0h9m3 0h1M4 11.5h4m1 0h1m1 0h4m1 0h1m2 0h1m5 0h1M1 12.5h1m4 0h1m4 0h3m1 0h1m1 0h1m2 0h4m2 0h1m1 0h1M3 13.5h1m3 0h3m1 0h2m1 0h2m2 0h1m1 0h1m5 0h2M1 14.5h2m1 0h1m1 0h1m7 0h1m2 0h4m1 0h4m3 0h1M2 15.5h1m4 0h1m1 0h1m2 0h1m1 0h4m4 0h3m1 0h2M1 16.5h1m1 0h2m7 0h1m2 0h2m2 0h3m3 0h1m2 0h1M1 17.5h1m2 0h2m1 0h2m1 0h2m1 0h1m4 0h2m1 0h1m4 0h2M1 18.5h2m1 0h2m2 0h1m5 0h1m2 0h4m1 0h4m1 0h1m1 0h1M1 19.5h1m3 0h4m2 0h2m1 0h5m4 0h3m1 0h1M1 20.5h1m2 0h1m1 0h1m1 0h2m1 0h1m1 0h2m2 0h1m1 0h2m1 0h1m1 0h2m2 0h1M1 21.5h1m2 0h2m1 0h1m1 0h3m1 0h1m1 0h1m2 0h1m2 0h5m1 0h3M9 22.5h1m3 0h1m6 0h2m3 0h5M1 23.5h7m3 0h3m2 0h1m3 0h2m1 0h1m1 0h3M1 24.5h1m5 0h1m1 0h4m2 0h2m2 0h1m1 0h1m3 0h1m2 0h1M1 25.5h1m1 0h3m1 0h1m1 0h1m2 0h1m5 0h1m2 0h5m1 0h3M1 26.5h1m1 0h3m1 0h1m1 0h1m2 0h2m1 0h1m1 0h1m1 0h1m2 0h1m3 0h4M1 27.5h1m1 0h3m1 0h1m1 0h1m2 0h1m2 0h3m5 0h6M1 28.5h1m5 0h1m4 0h1m1 0h2m4 0h3m2 0h2m1 0h1M1 29.5h7m1 0h1m3 0h4m1 0h1m3 0h6"/></svg>
+            </a>
+            <a class="close__url" href="https://techfil2026.unifil.tech/ingresso"><strong>Garanta seu ingresso gratuito</strong>techfil2026.unifil.tech/ingresso</a>
+          </div>
+        </div>
+        <div class="footer"><span class="footer__brand">TechFil 2026</span><span class="footer__page">10</span></div>
+      </section>
+    </div>
+
+    <nav class="controls" id="controls" aria-label="Controles da apresentação">
+      <button class="control" id="prev" type="button" aria-label="Slide anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></button>
+      <span class="counter" aria-live="polite"><span id="current">01</span> / <span id="total">13</span></span>
+      <button class="control" id="next" type="button" aria-label="Próximo slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></button>
+      <button class="control" id="fullscreen" type="button" aria-label="Alternar tela cheia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m13-5h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3m13 5h3a2 2 0 0 0 2-2v-3"/></svg></button>
+    </nav>
+    <div class="progress" aria-hidden="true"><span class="progress__bar" id="progress"></span></div>
+  </main>
+
+  <div class="rotate-hint" aria-hidden="true">
+    <svg class="rotate-hint__icon" viewBox="0 0 48 48"><rect x="4" y="6" width="40" height="28" rx="3"/><line x1="18" y1="38" x2="30" y2="38"/><line x1="24" y1="34" x2="24" y2="38"/></svg>
+    <p class="rotate-hint__text">Abra esta apresentação<br>em um <strong>computador</strong></p>
+  </div>
+
+  <script>
+    (() => {
+      const slides = [...document.querySelectorAll("[data-slide]")];
+      const stage = document.getElementById("stage");
+      const current = document.getElementById("current");
+      const progress = document.getElementById("progress");
+      const total = document.getElementById("total");
+      const prev = document.getElementById("prev");
+      const next = document.getElementById("next");
+      const fullscreen = document.getElementById("fullscreen");
+      let index = 0;
+      let touchX = null;
+      let controlsTimer;
+
+      const pad = value => String(value).padStart(2, "0");
+      total.textContent = pad(slides.length);
+      const showControls = () => {
+        stage.dataset.controls = "visible";
+        clearTimeout(controlsTimer);
+        controlsTimer = setTimeout(() => delete stage.dataset.controls, 1800);
+      };
+      const go = target => {
+        index = Math.max(0, Math.min(slides.length - 1, target));
+        slides.forEach((slide, slideIndex) => {
+          const active = slideIndex === index;
+          slide.classList.toggle("is-active", active);
+          slide.classList.toggle("is-before", slideIndex < index);
+          slide.setAttribute("aria-hidden", String(!active));
+          slide.inert = !active;
+        });
+        current.textContent = pad(index + 1);
+        progress.style.width = `${((index + 1) / slides.length) * 100}%`;
+        prev.disabled = index === 0;
+        next.disabled = index === slides.length - 1;
+        document.title = `${pad(index + 1)} · TechFil 2026 — Inteligência Digital`;
+      };
+      const toggleFullscreen = async () => {
+        try {
+          if (!document.fullscreenElement) await stage.requestFullscreen();
+          else await document.exitFullscreen();
+        } catch (_) { showControls(); }
+      };
+
+      prev.addEventListener("click", () => go(index - 1));
+      next.addEventListener("click", () => go(index + 1));
+      fullscreen.addEventListener("click", toggleFullscreen);
+      stage.addEventListener("pointermove", showControls, { passive: true });
+      stage.addEventListener("touchstart", event => { touchX = event.changedTouches[0].clientX; }, { passive: true });
+      stage.addEventListener("touchend", event => {
+        if (touchX === null) return;
+        const delta = event.changedTouches[0].clientX - touchX;
+        if (Math.abs(delta) > 48) go(index + (delta < 0 ? 1 : -1));
+        touchX = null;
+      }, { passive: true });
+      document.addEventListener("keydown", event => {
+        const key = event.key;
+        if (["ArrowRight", "PageDown", " ", "ArrowLeft", "PageUp", "Home", "End", "f", "F"].includes(key)) event.preventDefault();
+        if (key === "ArrowRight" || key === "PageDown" || key === " ") go(index + 1);
+        else if (key === "ArrowLeft" || key === "PageUp") go(index - 1);
+        else if (key === "Home") go(0);
+        else if (key === "End") go(slides.length - 1);
+        else if (key === "f" || key === "F") toggleFullscreen();
+        showControls();
+      });
+
+      go(0);
+      showControls();
+    })();
+  </script>
+</body>
+</html>
